@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>M.G. SHOP — Gestion Stock &amp; Ventes</title>
+<meta name="description" content="Application de gestion de stock et de ventes M.G. SHOP">
+<meta name="theme-color" content="#12191B">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="M.G. SHOP">
+<style>
+:root{
+  --bg:#12191B; --surface:#1C2628; --sunken:#0B1011; --ink:#F0F4F2; --ink-soft:#9EB2AE; --ink-faint:#657C78;
+  --line:#2B3739; --entree:#4FBE87; --entree-soft:rgba(79,190,135,0.16); --sortie:#E37A52; --sortie-soft:rgba(227,122,82,0.16);
+  --vente:#7396E8; --vente-soft:rgba(115,150,232,0.16); --warn:#E0B24B; --warn-soft:rgba(224,178,75,0.16);
+  --hero-bg:#0E211D;
+  --font-ui: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui);-webkit-tap-highlight-color:transparent;}
+button,select,input{font-family:inherit;}
+button{cursor:pointer;}
+#root{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:88px;position:relative;}
+
+.header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.header-brand{display:flex;align-items:center;gap:10px;min-width:0;}
+.header-logo{width:38px;height:38px;border-radius:10px;flex-shrink:0;}
+.header-title{font-weight:700;font-size:18px;letter-spacing:-0.01em;white-space:nowrap;}
+.header-sub{font-size:11px;color:var(--ink-faint);white-space:nowrap;}
+.icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:16px;line-height:1;}
+
+.hero{background:var(--hero-bg);border-radius:16px;padding:20px 18px;margin:14px 14px 18px;border:1px solid var(--line);}
+.hero-label{font-size:11px;letter-spacing:.08em;color:#9FB3AE;text-transform:uppercase;}
+.hero-value{font-family:var(--font-mono);font-weight:700;font-size:30px;color:#fff;margin-top:4px;}
+.hero-row{display:flex;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);}
+.hero-col{flex:1;}
+.hero-col-label{font-size:10px;color:#9FB3AE;text-transform:uppercase;}
+.hero-col-value{font-family:var(--font-mono);font-weight:700;font-size:16px;color:#fff;}
+
+.px{padding-left:16px;padding-right:16px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;}
+.stat-card .n{font-weight:700;font-size:16px;margin-top:6px;}
+.stat-card .l{font-size:12px;color:var(--ink-soft);}
+
+.section-title{font-weight:700;font-size:14px;margin:18px 0 10px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;}
+.card-form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;}
+.row-between{display:flex;align-items:center;justify-content:space-between;}
+.row-gap{display:flex;align-items:center;gap:8px;}
+
+.stamp{display:inline-block;font-weight:700;font-size:11px;letter-spacing:.07em;padding:3px 8px;border-radius:5px;transform:rotate(-2deg);}
+.stamp-entree{color:var(--entree);background:var(--entree-soft);}
+.stamp-sortie{color:var(--sortie);background:var(--sortie-soft);}
+.stamp-vente{color:var(--vente);background:var(--vente-soft);}
+.stamp-reset{color:var(--warn);background:var(--warn-soft);}
+
+.field{display:block;margin-bottom:12px;}
+.field-label{display:block;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;}
+.input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--sunken);color:var(--ink);font-family:var(--font-mono);font-size:14px;outline:none;}
+.input:focus{border-color:var(--vente);}
+.auto-field{margin-bottom:12px;}
+.auto-box{padding:10px 12px;border-radius:8px;border:1px dashed var(--line);background:var(--sunken);font-family:var(--font-mono);font-weight:700;font-size:15px;}
+
+.btn{padding:11px 16px;border-radius:9px;font-weight:600;font-size:14px;border:none;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
+.btn-primary{background:var(--ink);color:var(--bg);}
+.btn-entree{background:var(--entree);color:#0B1011;}
+.btn-sortie{background:var(--sortie);color:#0B1011;}
+.btn-vente{background:var(--vente);color:#0B1011;}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+.btn-danger{background:var(--surface);color:var(--sortie);border:1px solid #E37A5255;}
+.btn-auto{width:auto;flex:1;}
+.btn-row{display:flex;gap:8px;}
+
+.tabbar-inline{display:inline-flex;gap:2px;background:var(--sunken);border-radius:9px;padding:3px;margin-bottom:12px;flex-wrap:wrap;}
+.tabbar-inline button{padding:6px 12px;border-radius:7px;font-weight:600;font-size:12px;border:none;background:transparent;color:var(--ink-faint);}
+.tabbar-inline button.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.35);}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;text-align:center;color:var(--ink-faint);}
+.empty .e-icon{font-size:26px;margin-bottom:8px;}
+.empty p{margin:0;font-size:13px;}
+
+table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12px;}
+thead th{text-align:left;padding:10px;font-family:var(--font-ui);font-size:10px;text-transform:uppercase;color:var(--ink-soft);background:var(--sunken);}
+thead th.r{text-align:right;}
+tbody td{padding:10px;border-top:1px solid var(--line);}
+tbody td.r{text-align:right;}
+tfoot td{padding:10px;border-top:2px solid var(--ink);font-weight:700;}
+.table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+
+.navbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto;}
+.navbar button{flex:1;padding:9px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:none;color:var(--ink-faint);}
+.navbar button.active{color:var(--ink);font-weight:700;}
+.navbar .n-icon{font-size:19px;line-height:1;}
+.navbar .n-label{font-size:10px;}
+
+.warn-text{display:flex;align-items:center;gap:6px;color:var(--sortie);font-size:12px;margin-bottom:10px;}
+.msg-empty-line{color:var(--ink-faint);font-size:13px;padding:8px 2px;}
+.offline-pill{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:var(--warn);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;z-index:50;display:none;}
+</style>
+</head>
+<body>
+<div id="offline-pill" class="offline-pill">Mode hors connexion</div>
+<div id="root"></div>
+
+<script>
+/* =========================================================================
+   M.G. SHOP — Gestion Stock & Ventes
+   Application autonome (aucune dépendance externe), stockage local (localStorage)
+   ========================================================================= */
+
+// ---- Utilitaires ----------------------------------------------------------
+const STORAGE_KEY = 'mgshop-data-v1';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const nowISO = () => new Date().toISOString();
+const isToday = (iso) => { const d=new Date(iso), t=new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate(); };
+const fmtDate = (iso) => new Date(iso).toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const esc = (s) => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtMoney(n, devise){ return Math.round(n||0).toLocaleString('fr-FR') + ' ' + devise; }
+
+function defaultData(){
+  return { settings:{ tva:18, marge:85, devise:'FCFA' }, families:[], articles:[], movements:[], sales:[] };
+}
+function loadData(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); }catch(e){ console.error(e); }
+  return defaultData();
+}
+function saveData(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ console.error('Sauvegarde impossible', e); }
+}
+
+let state = loadData();
+let ui = { tab:'dashboard', showSettings:false, showEntree:false, showSortie:false, stockView:'liste', histFilter:'tous', confirmReset:false, entreeArticleId:'__new', venteArticleId:null, sortieArticleId:null };
+
+// ---- Actions ---------------------------------------------------------------
+const actions = {
+  addFamille(nom){
+    state.families.push({id:uid(), nom});
+    saveData(); render();
+  },
+  deleteFamille(id){
+    if(state.articles.some(a=>a.familleId===id)) return;
+    state.families = state.families.filter(f=>f.id!==id);
+    saveData(); render();
+  },
+  addArticle({reference, nom, familleId}){
+    const article = {id:uid(), reference, nom, familleId, quantite:0, prixAchatUnitaire:0, fraisExpedition:0, coutUnitaire:0};
+    state.articles.push(article);
+    saveData();
+    return article;
+  },
+  entree({familleId, articleId, quantite, prixAchat, frais, coutUnitaire, totalArticles}){
+    const existing = state.articles.find(a=>a.id===articleId);
+    if(!existing) return;
+    const newQty = existing.quantite + quantite;
+    const newTotalValue = existing.quantite*existing.coutUnitaire + quantite*coutUnitaire;
+    const newCout = newQty>0 ? newTotalValue/newQty : coutUnitaire;
+    Object.assign(existing, {quantite:newQty, prixAchatUnitaire:prixAchat, fraisExpedition:frais, coutUnitaire:newCout});
+    state.movements.unshift({id:uid(), date:nowISO(), type:'entree', articleId:existing.id, articleNom:existing.nom, quantite, detail:`Achat unit. ${Math.round(prixAchat)} + frais (manuel) ${Math.round(frais)} · coût total ${Math.round(totalArticles)}`});
+    saveData();
+  },
+  sortie({articleId, quantite, motif}){
+    const article = state.articles.find(a=>a.id===articleId);
+    if(!article) return;
+    article.quantite = Math.max(0, article.quantite - quantite);
+    state.movements.unshift({id:uid(), date:nowISO(), type:'sortie', articleId, articleNom:article.nom, quantite, detail:`Motif : ${motif}`});
+    saveData();
+  },
+  vente({articleId, quantite, prixVenteUnitaire, tauxRemise, montantRemise, tva, totalHT, totalTTC, benefice, coutUnitaire}){
+    const article = state.articles.find(a=>a.id===articleId);
+    if(!article) return;
+    article.quantite = Math.max(0, article.quantite - quantite);
+    state.sales.push({id:uid(), date:nowISO(), articleId, articleNom:article.nom, quantite, prixVenteUnitaire, tauxRemise, montantRemise, tva, totalHT, totalTTC, benefice, coutUnitaire});
+    state.movements.unshift({id:uid(), date:nowISO(), type:'vente', articleId, articleNom:article.nom, quantite, detail:`Vente TTC ${Math.round(totalTTC)}`});
+    saveData();
+  },
+  resetAll(){
+    state.articles.forEach(a=>a.quantite=0);
+    state.sales = [];
+    state.movements = [{id:uid(), date:nowISO(), type:'reset', articleId:null, articleNom:'Stock et ventes', quantite:0, detail:'Réinitialisation complète : stock et ventes remis à zéro'}];
+    saveData();
+  },
+  updateSettings(s){ Object.assign(state.settings, s); saveData(); }
+};
+
+// ---- Rendu : composants génériques -----------------------------------------
+function stamp(type){
+  const map = {entree:['ENTRÉE','stamp-entree'], sortie:['SORTIE','stamp-sortie'], vente:['VENTE','stamp-vente'], reset:['RESET','stamp-reset']};
+  const [label, cls] = map[type] || map.entree;
+  return `<span class="stamp ${cls}">${label}</span>`;
+}
+function empty(icon, text){
+  return `<div class="empty"><div class="e-icon">${icon}</div><p>${esc(text)}</p></div>`;
+}
+function autoField(label, valueHtml){
+  return `<div class="auto-field"><div class="field-label">${esc(label)}</div><div class="auto-box">${valueHtml}</div></div>`;
+}
+
+// ---- Rendu : Dashboard -------------------------------------------------------
+function renderDashboard(){
+  const devise = state.settings.devise;
+  const valeurStock = state.articles.reduce((s,a)=>s+a.quantite*a.coutUnitaire,0);
+  const ventesJour = state.sales.filter(s=>isToday(s.date)).reduce((s,v)=>s+v.totalTTC,0);
+  const beneficeTotal = state.sales.reduce((s,v)=>s+v.benefice,0);
+  const recents = state.movements.slice(0,6);
+
+  return `
+    <div class="hero">
+      <div class="hero-label">Valeur totale du stock</div>
+      <div class="hero-value">${fmtMoney(valeurStock, devise)}</div>
+      <div class="hero-row">
+        <div class="hero-col"><div class="hero-col-label">Ventes du jour</div><div class="hero-col-value">${fmtMoney(ventesJour, devise)}</div></div>
+        <div class="hero-col"><div class="hero-col-label">Bénéfice total</div><div class="hero-col-value" style="color:#8FD9AE;">${fmtMoney(beneficeTotal, devise)}</div></div>
+      </div>
+    </div>
+    <div class="px grid2">
+      <button class="stat-card" data-goto="stock">📦<div class="n">${state.articles.length}</div><div class="l">Articles en stock</div></button>
+      <button class="stat-card" data-goto="ventes">🧾<div class="n">${state.sales.length}</div><div class="l">Ventes enregistrées</div></button>
+    </div>
+    <div class="px">
+      <div class="section-title">Activité récente</div>
+      ${recents.length===0 ? empty('🕘','Aucun mouvement pour le moment.') :
+        recents.map(m=>`
+          <div class="card row-gap">
+            ${stamp(m.type)}
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(m.articleNom||'—')}</div>
+              <div style="font-size:11px;color:var(--ink-faint);">${fmtDate(m.date)}</div>
+            </div>
+            <div style="font-family:var(--font-mono);font-weight:700;font-size:13px;">${m.quantite>0 ? (m.type==='entree'?'+':'-')+m.quantite : ''}</div>
+          </div>`).join('')}
+    </div>`;
+}
+
+// ---- Rendu : Stock -----------------------------------------------------------
+function familleOptions(selected){
+  return state.families.map(f=>`<option value="${f.id}" ${f.id===selected?'selected':''}>${esc(f.nom)}</option>`).join('');
+}
+function articleLabel(a){
+  return `${a.reference ? esc(a.reference)+' — ' : ''}${esc(a.nom)} (stock : ${a.quantite})`;
+}
+function articleOptionsForFamille(familleId, selected){
+  const list = state.articles.filter(a=>a.familleId===familleId);
+  if(list.length===0) return '';
+  return list.map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${articleLabel(a)}</option>`).join('');
+}
+
+function renderRefForm(){
+  if(state.families.length===0){
+    return `<div class="card-form">${empty('🏷️','Créez d’abord une famille de produits (onglet Familles).')}</div>`;
+  }
+  const familleId = ui.refFamilleId || state.families[0].id;
+  return `
+  <div class="card-form" id="ref-form">
+    <div class="row-between" style="margin-bottom:12px;">
+      <div class="row-gap"><span>🆕</span><strong>Nouvelle référence d'article</strong></div>
+      <button class="icon-btn" data-action="close-ref">✕</button>
+    </div>
+    <div class="field"><span class="field-label">Référence des articles</span>
+      <input class="input" id="rf-reference" placeholder="Ex : REF-001">
+    </div>
+    <div class="field"><span class="field-label">Famille de produits</span>
+      <select class="input" id="rf-famille">${familleOptions(familleId)}</select>
+    </div>
+    <div class="field"><span class="field-label">Articles (nom)</span>
+      <input class="input" id="rf-nom" placeholder="Ex : Sac de riz 25kg">
+    </div>
+    <button class="btn btn-primary" id="rf-submit">➕ Créer la référence</button>
+  </div>`;
+}
+
+function renderEntreeForm(){
+  if(state.families.length===0){
+    return `<div class="card-form">${empty('📥','Créez d’abord une famille de produits (onglet Familles).')}</div>`;
+  }
+  const familleId = ui.entreeFamilleId || state.families[0].id;
+  const articlesFamille = state.articles.filter(a=>a.familleId===familleId);
+  const articleId = ui.entreeArticleId || (articlesFamille[0] && articlesFamille[0].id) || '';
+  return `
+  <div class="card-form" id="entree-form">
+    <div class="row-between" style="margin-bottom:12px;">
+      <div class="row-gap"><span>📥</span><strong>Entrée de stock</strong></div>
+      <button class="icon-btn" data-action="close-entree">✕</button>
+    </div>
+    <div class="field"><span class="field-label">Famille de produits</span>
+      <select class="input" id="ef-famille">${familleOptions(familleId)}</select>
+    </div>
+    <div class="field"><span class="field-label">Article (référence)</span>
+      ${articlesFamille.length===0
+        ? `<div class="auto-box" style="border-color:var(--sortie);color:var(--sortie);">Aucune référence pour cette famille. Créez-en une d'abord ci-dessus.</div>`
+        : `<select class="input" id="ef-article">${articleOptionsForFamille(familleId, articleId)}</select>`}
+    </div>
+    <div class="field"><span class="field-label">Quantité</span><input class="input" id="ef-qte" type="number" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><span class="field-label">Prix unitaire d'achat</span><input class="input" id="ef-prix" type="number" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><span class="field-label">Frais d'expédition (saisie manuelle, total pour cette entrée)</span><input class="input" id="ef-frais" type="number" inputmode="decimal" placeholder="0"></div>
+    ${autoField("Coût unitaire (achat + frais/qté)", `<span id="ef-cout">${fmtMoney(0,state.settings.devise)}</span>`)}
+    ${autoField("Total articles (coût de l'entrée)", `<span id="ef-total">${fmtMoney(0,state.settings.devise)}</span>`)}
+    ${autoField("Prix de vente unitaire suggéré", `<span id="ef-pv">${fmtMoney(0,state.settings.devise)}</span>`)}
+    <button class="btn btn-entree" id="ef-submit" ${articlesFamille.length===0?'disabled style="opacity:.5;"':''}>➕ Valider l'entrée</button>
+  </div>`;
+}
+
+function renderSortieForm(){
+  if(state.articles.length===0){
+    return `<div class="card-form">${empty('📤','Aucun article disponible en stock.')}</div>`;
+  }
+  const articleId = ui.sortieArticleId || state.articles[0].id;
+  return `
+  <div class="card-form" id="sortie-form">
+    <div class="row-between" style="margin-bottom:12px;">
+      <div class="row-gap"><span>📤</span><strong>Sortie de stock (hors vente)</strong></div>
+      <button class="icon-btn" data-action="close-sortie">✕</button>
+    </div>
+    <div class="field"><span class="field-label">Article</span>
+      <select class="input" id="sf-article">${state.articles.map(a=>`<option value="${a.id}" ${a.id===articleId?'selected':''}>${articleLabel(a)}</option>`).join('')}</select>
+    </div>
+    <div class="field"><span class="field-label">Quantité sortie</span><input class="input" id="sf-qte" type="number" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><span class="field-label">Motif</span>
+      <select class="input" id="sf-motif"><option>Ajustement</option><option>Perte</option><option>Casse</option><option>Autre</option></select>
+    </div>
+    <div id="sf-warn"></div>
+    <button class="btn btn-sortie" id="sf-submit">Valider la sortie</button>
+  </div>`;
+}
+
+function renderStock(){
+  const devise = state.settings.devise;
+  const valeurStock = state.articles.reduce((s,a)=>s+a.quantite*a.coutUnitaire,0);
+  let html = `<div class="px" style="padding-top:16px;">
+    <div class="btn-row" style="margin-bottom:8px;">
+      <button class="btn btn-entree btn-auto" data-action="open-entree">📥 Entrée</button>
+      <button class="btn btn-sortie btn-auto" data-action="open-sortie">📤 Sortie</button>
+    </div>
+    <div class="btn-row" style="margin-bottom:16px;">
+      <button class="btn btn-ghost btn-auto" data-action="open-ref">🆕 Nouvelle référence d'article</button>
+    </div>`;
+  if(ui.showRef) html += renderRefForm();
+  if(ui.showEntree) html += renderEntreeForm();
+  if(ui.showSortie) html += renderSortieForm();
+
+  html += `<div class="tabbar-inline">
+    <button data-stockview="liste" class="${ui.stockView==='liste'?'active':''}">Articles</button>
+    <button data-stockview="inventaire" class="${ui.stockView==='inventaire'?'active':''}">Inventaire</button>
+  </div>`;
+
+  if(state.articles.length===0){
+    html += empty('📦','Aucun article. Faites une entrée de stock pour commencer.');
+  } else if(ui.stockView==='liste'){
+    html += state.articles.map(a=>{
+      const fam = state.families.find(f=>f.id===a.familleId);
+      const pv = a.coutUnitaire*(1+state.settings.marge/100);
+      return `<div class="card">
+        <div class="row-between">
+          <div><div style="font-weight:700;font-size:14px;">${a.reference?`<span style="color:var(--vente);font-family:var(--font-mono);font-size:12px;">${esc(a.reference)}</span> · `:''}${esc(a.nom)}</div><div style="font-size:11px;color:var(--ink-faint);">${esc(fam?fam.nom:'Sans famille')}</div></div>
+          <div style="font-family:var(--font-mono);font-weight:700;font-size:18px;color:${a.quantite>0?'var(--entree)':'var(--sortie)'};">${a.quantite}</div>
+        </div>
+        <div class="grid2" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
+          <div><div style="font-size:10px;color:var(--ink-faint);text-transform:uppercase;">Coût unitaire</div><div style="font-family:var(--font-mono);font-weight:600;font-size:13px;">${fmtMoney(a.coutUnitaire,devise)}</div></div>
+          <div><div style="font-size:10px;color:var(--ink-faint);text-transform:uppercase;">Prix de vente</div><div style="font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--vente);">${fmtMoney(pv,devise)}</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="table-wrap"><table>
+      <thead><tr><th>Réf.</th><th>Article</th><th class="r">Qté</th><th class="r">Valeur</th></tr></thead>
+      <tbody>${state.articles.map(a=>`<tr><td>${esc(a.reference||'—')}</td><td>${esc(a.nom)}</td><td class="r">${a.quantite}</td><td class="r" style="font-weight:600;">${fmtMoney(a.quantite*a.coutUnitaire,devise)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="3" style="font-family:var(--font-ui);">Total</td><td class="r">${fmtMoney(valeurStock,devise)}</td></tr></tfoot>
+    </table></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ---- Rendu : Familles ----------------------------------------------------
+function renderFamilles(){
+  let html = `<div class="px" style="padding-top:16px;">
+    <div class="card-form">
+      <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Nouvelle famille</div>
+      <div class="btn-row">
+        <input class="input" id="fam-nom" placeholder="Ex : Alimentation, Électronique…">
+        <button class="btn btn-primary" style="width:52px;" id="fam-add">➕</button>
+      </div>
+    </div>`;
+  if(state.families.length===0){
+    html += empty('🏷️','Aucune famille de produits créée.');
+  } else {
+    html += state.families.map(f=>{
+      const count = state.articles.filter(a=>a.familleId===f.id).length;
+      return `<div class="card row-between">
+        <div><div style="font-weight:600;font-size:14px;">${esc(f.nom)}</div><div style="font-size:11px;color:var(--ink-faint);">${count} article${count>1?'s':''}</div></div>
+        <button class="icon-btn" data-del-famille="${f.id}" style="color:${count>0?'var(--ink-faint)':'var(--sortie)'};">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ---- Rendu : Ventes -------------------------------------------------------
+function renderVenteForm(){
+  const devise = state.settings.devise;
+  if(state.articles.length===0){
+    return `<div class="card-form">${empty('⚠️',"Ajoutez d'abord des articles au stock.")}</div>`;
+  }
+  const articleId = ui.venteArticleId || state.articles[0].id;
+  const article = state.articles.find(a=>a.id===articleId);
+  const suggestedPv = article.coutUnitaire*(1+state.settings.marge/100);
+  return `
+  <div class="card-form" id="vente-form">
+    <div class="row-gap" style="margin-bottom:12px;"><span>🧾</span><strong>Nouvelle vente</strong></div>
+    <div class="field"><span class="field-label">Article</span>
+      <select class="input" id="vf-article">${state.articles.map(a=>`<option value="${a.id}" ${a.id===articleId?'selected':''}>${articleLabel(a)}</option>`).join('')}</select>
+    </div>
+    <div class="field"><span class="field-label">Quantité vendue (= sortie de stock)</span><input class="input" id="vf-qte" type="number" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><span class="field-label">Prix de vente unitaire hors T.V.A. (coût de revient + ${state.settings.marge}%, modifiable)</span><input class="input" id="vf-prix" type="number" inputmode="decimal" placeholder="${Math.round(suggestedPv)}"></div>
+    <div class="field"><span class="field-label">Remise accordée — taux (%) facultatif</span><input class="input" id="vf-remise" type="number" inputmode="decimal" value="0"></div>
+    <div class="field"><span class="field-label">T.V.A. (%) — 18% ou autre taux</span><input class="input" id="vf-tva" type="number" inputmode="decimal" value="${state.settings.tva}"></div>
+    ${autoField("Total hors taxe (H.T.)", `<span id="vf-ht">${fmtMoney(0,devise)}</span>`)}
+    ${autoField("Montant total T.T.C.", `<span id="vf-ttc">${fmtMoney(0,devise)}</span>`)}
+    ${autoField("Bénéfice", `<span id="vf-benef">${fmtMoney(0,devise)}</span>`)}
+    <div id="vf-warn"></div>
+    <button class="btn btn-vente" id="vf-submit">🧾 Enregistrer la vente</button>
+  </div>`;
+}
+
+function renderVentes(){
+  const devise = state.settings.devise;
+  const map = {};
+  state.sales.forEach(s=>{
+    if(!map[s.articleId]) map[s.articleId] = {nom:s.articleNom, qty:0, benefice:0};
+    map[s.articleId].qty += s.quantite;
+    map[s.articleId].benefice += s.benefice;
+  });
+  const beneficeParArticle = Object.values(map).sort((a,b)=>b.benefice-a.benefice);
+
+  let html = `<div class="px" style="padding-top:16px;">`;
+  html += renderVenteForm();
+
+  if(beneficeParArticle.length>0){
+    html += `<div class="card-form">
+      <div class="row-gap" style="margin-bottom:10px;"><span>📈</span><strong style="font-size:14px;">Bénéfice par article</strong></div>
+      ${beneficeParArticle.map(b=>`
+        <div class="row-between" style="font-size:13px;margin-bottom:6px;">
+          <span>${esc(b.nom)} <span style="color:var(--ink-faint);font-family:var(--font-mono);font-size:11px;">×${b.qty}</span></span>
+          <span style="font-family:var(--font-mono);font-weight:600;color:${b.benefice>=0?'var(--entree)':'var(--sortie)'};">${fmtMoney(b.benefice,devise)}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  html += `<div class="section-title">Historique des ventes</div>`;
+  if(state.sales.length===0){
+    html += empty('🧾','Aucune vente enregistrée.');
+  } else {
+    html += [...state.sales].reverse().map(s=>`
+      <div class="card">
+        <div class="row-between"><span style="font-weight:600;font-size:13px;">${esc(s.articleNom)} × ${s.quantite}</span><span style="font-family:var(--font-mono);font-weight:700;font-size:14px;">${fmtMoney(s.totalTTC,devise)}</span></div>
+        <div style="font-size:11px;color:var(--ink-faint);margin-top:2px;">${fmtDate(s.date)} · Remise ${s.tauxRemise||0}% · TVA ${s.tva}% · Bénéfice ${fmtMoney(s.benefice,devise)}</div>
+      </div>`).join('');
+  }
+
+  html += `<div class="card-form" style="background:var(--sortie-soft);border-color:#B5482B44;margin-top:16px;">
+    <div class="row-gap" style="margin-bottom:8px;"><span>⚠️</span><strong style="color:var(--sortie);font-size:14px;">Réinitialiser</strong></div>
+    <p style="font-size:12px;margin:0 0 12px;">Remet TOUT à zéro : le stock (quantités) et les ventes (historique des ventes). Les familles et les références d'articles sont conservées.</p>
+    ${ui.confirmReset ? `
+      <div class="btn-row"><button class="btn btn-ghost" id="v-cancel-reset">Annuler</button><button class="btn btn-sortie" id="v-confirm-reset">Confirmer la réinitialisation</button></div>
+    ` : `<button class="btn btn-danger" id="v-ask-reset">🔄 Réinitialiser stock et ventes</button>`}
+  </div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+// ---- Rendu : Historique -----------------------------------------------------
+function renderHistorique(){
+  const items = state.movements.filter(m=>ui.histFilter==='tous' || m.type===ui.histFilter);
+  const filters = [['tous','Tout'],['entree','Entrées'],['sortie','Sorties'],['vente','Ventes'],['reset','Réinit.']];
+  let html = `<div class="px" style="padding-top:16px;">
+    <div class="tabbar-inline">${filters.map(([v,l])=>`<button data-histfilter="${v}" class="${ui.histFilter===v?'active':''}">${l}</button>`).join('')}</div>`;
+  if(items.length===0){
+    html += empty('🕘','Aucun mouvement pour ce filtre.');
+  } else {
+    html += items.map(m=>`
+      <div class="card">
+        <div class="row-between" style="margin-bottom:4px;">${stamp(m.type)}<span style="font-size:11px;color:var(--ink-faint);">${fmtDate(m.date)}</span></div>
+        <div style="font-weight:600;font-size:13px;">${esc(m.articleNom||'Stock')}</div>
+        ${m.detail?`<div style="font-size:12px;color:var(--ink-soft);margin-top:2px;">${esc(m.detail)}</div>`:''}
+        ${m.quantite?`<div style="font-family:var(--font-mono);font-size:12px;margin-top:4px;color:var(--ink-soft);">Quantité : ${m.quantite}</div>`:''}
+      </div>`).join('');
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ---- Rendu : Paramètres -----------------------------------------------------
+function renderParametres(){
+  return `<div class="px" style="padding-top:16px;">
+    <div class="row-between" style="margin-bottom:16px;">
+      <span style="font-weight:700;font-size:18px;">Paramètres</span>
+      <button class="icon-btn" data-action="close-settings">✕</button>
+    </div>
+    <div class="card-form">
+      <div class="field"><span class="field-label">T.V.A. par défaut (%)</span><input class="input" id="pa-tva" type="number" value="${state.settings.tva}"></div>
+      <div class="field"><span class="field-label">Marge de vente par défaut (%)</span><input class="input" id="pa-marge" type="number" value="${state.settings.marge}"></div>
+      <div class="field"><span class="field-label">Devise</span><input class="input" id="pa-devise" value="${esc(state.settings.devise)}"></div>
+      <button class="btn btn-primary" id="pa-save">Enregistrer</button>
+    </div>
+    <div class="card-form" style="background:var(--sortie-soft);border-color:#B5482B44;">
+      <div class="row-gap" style="margin-bottom:8px;"><span>⚠️</span><strong style="color:var(--sortie);font-size:14px;">Zone sensible</strong></div>
+      <p style="font-size:12px;margin:0 0 12px;">Remet TOUT à zéro : le stock (quantités) et les ventes (historique des ventes). Les familles et les références d'articles sont conservées.</p>
+      ${ui.confirmReset ? `
+        <div class="btn-row"><button class="btn btn-ghost" id="pa-cancel-reset">Annuler</button><button class="btn btn-sortie" id="pa-confirm-reset">Confirmer la réinitialisation</button></div>
+      ` : `<button class="btn btn-danger" id="pa-ask-reset">🔄 Réinitialiser stock et ventes</button>`}
+    </div>
+    <div class="card-form">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;">À propos</div>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0;">M.G. SHOP — Gestion Stock &amp; Ventes. Application installée sur cet appareil, fonctionne hors connexion. Vos données restent uniquement sur ce téléphone.</p>
+    </div>
+  </div>`;
+}
+
+// ---- Application shell -------------------------------------------------------
+const NAV = [
+  {id:'dashboard', label:'Accueil', icon:'🏠'},
+  {id:'stock', label:'Stock', icon:'📦'},
+  {id:'ventes', label:'Ventes', icon:'🧾'},
+  {id:'familles', label:'Familles', icon:'🏷️'},
+  {id:'historique', label:'Historique', icon:'🕘'},
+];
+
+function render(){
+  const root = document.getElementById('root');
+  let content;
+  if(ui.showSettings){ content = renderParametres(); }
+  else if(ui.tab==='dashboard') content = renderDashboard();
+  else if(ui.tab==='stock') content = renderStock();
+  else if(ui.tab==='ventes') content = renderVentes();
+  else if(ui.tab==='familles') content = renderFamilles();
+  else if(ui.tab==='historique') content = renderHistorique();
+
+  root.innerHTML = `
+    <div class="header">
+      <div class="header-brand">
+        <img src="icons/icon-192.png" class="header-logo" alt="M.G. SHOP">
+        <div>
+          <div class="header-title">M.G. SHOP</div>
+          <div class="header-sub">Marge ${state.settings.marge}% · TVA ${state.settings.tva}%</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-settings">⚙️</button>
+    </div>
+    ${content}
+    <div class="navbar">
+      ${NAV.map(n=>`<button data-tab="${n.id}" class="${(ui.tab===n.id && !ui.showSettings)?'active':''}"><span class="n-icon">${n.icon}</span><span class="n-label">${n.label}</span></button>`).join('')}
+    </div>
+  `;
+  bindHandlers();
+}
+
+// ---- Liaison des événements ---------------------------------------------------
+function bindHandlers(){
+  document.getElementById('btn-settings').onclick = () => { ui.showSettings = true; render(); };
+
+  document.querySelectorAll('[data-tab]').forEach(b=>{
+    b.onclick = () => { ui.tab = b.dataset.tab; ui.showSettings=false; render(); };
+  });
+  document.querySelectorAll('[data-goto]').forEach(b=>{
+    b.onclick = () => { ui.tab = b.dataset.goto; render(); };
+  });
+
+  // Réglages
+  const closeSettings = document.getElementById('close-settings') || document.querySelector('[data-action="close-settings"]');
+  if(closeSettings) closeSettings.onclick = () => { ui.showSettings = false; render(); };
+  const paSave = document.getElementById('pa-save');
+  if(paSave) paSave.onclick = () => {
+    actions.updateSettings({ tva:num(document.getElementById('pa-tva').value), marge:num(document.getElementById('pa-marge').value), devise:document.getElementById('pa-devise').value||'FCFA' });
+    render();
+  };
+  const paAsk = document.getElementById('pa-ask-reset'); if(paAsk) paAsk.onclick = () => { ui.confirmReset = true; render(); };
+  const paCancel = document.getElementById('pa-cancel-reset'); if(paCancel) paCancel.onclick = () => { ui.confirmReset = false; render(); };
+  const paConfirm = document.getElementById('pa-confirm-reset'); if(paConfirm) paConfirm.onclick = () => { actions.resetAll(); ui.confirmReset=false; render(); };
+  const vAsk = document.getElementById('v-ask-reset'); if(vAsk) vAsk.onclick = () => { ui.confirmReset = true; render(); };
+  const vCancel = document.getElementById('v-cancel-reset'); if(vCancel) vCancel.onclick = () => { ui.confirmReset = false; render(); };
+  const vConfirm = document.getElementById('v-confirm-reset'); if(vConfirm) vConfirm.onclick = () => { actions.resetAll(); ui.confirmReset=false; render(); };
+
+  // Stock : ouverture/fermeture formulaires
+  const openEntree = document.querySelector('[data-action="open-entree"]');
+  if(openEntree) openEntree.onclick = () => { ui.showEntree = true; ui.showSortie = false; ui.showRef = false; render(); };
+  const openSortie = document.querySelector('[data-action="open-sortie"]');
+  if(openSortie) openSortie.onclick = () => { ui.showSortie = true; ui.showEntree = false; ui.showRef = false; render(); };
+  const openRef = document.querySelector('[data-action="open-ref"]');
+  if(openRef) openRef.onclick = () => { ui.showRef = true; ui.showEntree = false; ui.showSortie = false; render(); };
+  const closeRef = document.querySelector('[data-action="close-ref"]');
+  if(closeRef) closeRef.onclick = () => { ui.showRef = false; render(); };
+  const closeEntree = document.querySelector('[data-action="close-entree"]');
+  if(closeEntree) closeEntree.onclick = () => { ui.showEntree = false; render(); };
+  const closeSortie = document.querySelector('[data-action="close-sortie"]');
+  if(closeSortie) closeSortie.onclick = () => { ui.showSortie = false; render(); };
+
+  document.querySelectorAll('[data-stockview]').forEach(b=>{
+    b.onclick = () => { ui.stockView = b.dataset.stockview; render(); };
+  });
+  document.querySelectorAll('[data-histfilter]').forEach(b=>{
+    b.onclick = () => { ui.histFilter = b.dataset.histfilter; render(); };
+  });
+
+  // Formulaire de création de référence
+  const rf = document.getElementById('ref-form');
+  if(rf){
+    const famSel = document.getElementById('rf-famille');
+    famSel.onchange = () => { ui.refFamilleId = famSel.value; };
+    document.getElementById('rf-submit').onclick = () => {
+      const reference = document.getElementById('rf-reference').value.trim();
+      const nom = document.getElementById('rf-nom').value.trim();
+      const familleId = famSel.value;
+      if(!familleId || !nom) return;
+      const article = actions.addArticle({reference, nom, familleId});
+      ui.showRef = false; ui.entreeFamilleId = familleId; ui.entreeArticleId = article.id;
+      render();
+    };
+  }
+
+  // Formulaire Entrée
+  const ef = document.getElementById('entree-form');
+  if(ef){
+    const famSel = document.getElementById('ef-famille');
+    const artSel = document.getElementById('ef-article');
+    const qte = document.getElementById('ef-qte'), prix = document.getElementById('ef-prix'), frais = document.getElementById('ef-frais');
+    const devise = state.settings.devise, marge = state.settings.marge;
+
+    function recalc(){
+      const q = num(qte.value), pa = num(prix.value), fr = num(frais.value);
+      const fraisU = q>0 ? fr/q : 0;
+      const cout = pa + fraisU;
+      const total = q*pa + fr;
+      const pv = cout*(1+marge/100);
+      document.getElementById('ef-cout').textContent = fmtMoney(cout, devise);
+      document.getElementById('ef-total').textContent = fmtMoney(total, devise);
+      document.getElementById('ef-pv').textContent = fmtMoney(pv, devise);
+    }
+    famSel.onchange = () => { ui.entreeFamilleId = famSel.value; ui.entreeArticleId=''; render(); };
+    if(artSel) artSel.onchange = () => { ui.entreeArticleId = artSel.value; };
+    [qte,prix,frais].forEach(el=>el.oninput = recalc);
+    recalc();
+
+    document.getElementById('ef-submit').onclick = () => {
+      const familleId = famSel.value, articleId = artSel ? artSel.value : '';
+      const q = num(qte.value), pa = num(prix.value), fr = num(frais.value);
+      if(!familleId || !articleId || q<=0) return;
+      const fraisU = q>0 ? fr/q : 0;
+      const cout = pa + fraisU;
+      const total = q*pa + fr;
+      actions.entree({familleId, articleId, quantite:q, prixAchat:pa, frais:fr, coutUnitaire:cout, totalArticles:total});
+      ui.showEntree = false;
+      render();
+    };
+  }
+
+  // Formulaire Sortie
+  const sf = document.getElementById('sortie-form');
+  if(sf){
+    const artSel = document.getElementById('sf-article');
+    const qte = document.getElementById('sf-qte');
+    const warn = document.getElementById('sf-warn');
+    function checkWarn(){
+      const article = state.articles.find(a=>a.id===artSel.value);
+      const q = num(qte.value);
+      warn.innerHTML = (article && q>article.quantite) ? `<div class="warn-text">⚠️ Quantité supérieure au stock disponible.</div>` : '';
+    }
+    artSel.onchange = () => { ui.sortieArticleId = artSel.value; checkWarn(); };
+    qte.oninput = checkWarn;
+    document.getElementById('sf-submit').onclick = () => {
+      const article = state.articles.find(a=>a.id===artSel.value);
+      const q = num(qte.value);
+      const motif = document.getElementById('sf-motif').value;
+      if(!article || q<=0 || q>article.quantite) return;
+      actions.sortie({articleId:article.id, quantite:q, motif});
+      ui.showSortie = false;
+      render();
+    };
+  }
+
+  // Formulaire Vente
+  const vf = document.getElementById('vente-form');
+  if(vf){
+    const artSel = document.getElementById('vf-article');
+    const qte = document.getElementById('vf-qte'), prix = document.getElementById('vf-prix'), remise = document.getElementById('vf-remise'), tva = document.getElementById('vf-tva');
+    const warn = document.getElementById('vf-warn');
+    const devise = state.settings.devise, marge = state.settings.marge;
+
+    function calc(){
+      const article = state.articles.find(a=>a.id===artSel.value);
+      if(!article) return null;
+      const suggestedPv = article.coutUnitaire*(1+marge/100);
+      const pv = prix.value==='' ? suggestedPv : num(prix.value);
+      const q = num(qte.value), tauxRemise = num(remise.value), tvaRate = num(tva.value);
+      const brut = q*pv;
+      const montantRemise = brut*tauxRemise/100;
+      const totalHT = brut - montantRemise;
+      const totalTTC = totalHT*(1+tvaRate/100);
+      const coutTotal = article.coutUnitaire*q;
+      const benefice = totalHT - coutTotal;
+      return {article, pv, q, tauxRemise, tvaRate, montantRemise, totalHT, totalTTC, benefice};
+    }
+    function recalc(){
+      const r = calc();
+      if(!r) return;
+      document.getElementById('vf-ht').textContent = fmtMoney(r.totalHT, devise);
+      document.getElementById('vf-ttc').textContent = fmtMoney(r.totalTTC, devise);
+      document.getElementById('vf-benef').textContent = fmtMoney(r.benefice, devise);
+      warn.innerHTML = (r.q>r.article.quantite) ? `<div class="warn-text">⚠️ Quantité supérieure au stock disponible (${r.article.quantite}).</div>` : '';
+    }
+    artSel.onchange = () => { ui.venteArticleId = artSel.value; prix.value=''; recalc(); };
+    [qte,prix,remise,tva].forEach(el=>el.oninput=recalc);
+    recalc();
+
+    document.getElementById('vf-submit').onclick = () => {
+      const r = calc();
+      if(!r || r.q<=0 || r.q>r.article.quantite) return;
+      actions.vente({articleId:r.article.id, quantite:r.q, prixVenteUnitaire:r.pv, tauxRemise:r.tauxRemise, montantRemise:r.montantRemise, tva:r.tvaRate, totalHT:r.totalHT, totalTTC:r.totalTTC, benefice:r.benefice, coutUnitaire:r.article.coutUnitaire});
+      render();
+    };
+  }
+
+  // Familles
+  const famAdd = document.getElementById('fam-add');
+  if(famAdd) famAdd.onclick = () => {
+    const el = document.getElementById('fam-nom');
+    if(el.value.trim()){ actions.addFamille(el.value.trim()); render(); }
+  };
+  document.querySelectorAll('[data-del-famille]').forEach(b=>{
+    b.onclick = () => actions.deleteFamille(b.dataset.delFamille);
+  });
+}
+
+// ---- Détection hors connexion --------------------------------------------------
+function updateOnlineStatus(){
+  document.getElementById('offline-pill').style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// ---- Service worker (mode hors connexion) --------------------------------------
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(err => console.error('SW registration failed', err));
+  });
+}
+
+// ---- Démarrage --------------------------------------------------------------
+render();
+</script>
+</body>
+</html>
